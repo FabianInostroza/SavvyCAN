@@ -301,6 +301,7 @@ void DBCSignalEditor::onCustomMenuSignals(QPoint point)
     menu->setAttribute(Qt::WA_DeleteOnClose);
 
     menu->addAction(tr("Add a new signal"), this, SLOT(addNewSignal()));
+    menu->addAction(tr("Duplicate signal"), this, SLOT(duplicateSignal()));
     menu->addAction(tr("Delete currently selected signal"), this, SLOT(deleteCurrentSignal()));
 
     menu->popup(ui->signalsList->mapToGlobal(point));
@@ -345,18 +346,38 @@ void DBCSignalEditor::addNewSignal()
 
 }
 
-void DBCSignalEditor::deleteCurrentSignal()
+void DBCSignalEditor::duplicateSignal()
 {
     int currIdx = ui->signalsList->currentRow();
 
-    if(currIdx==ui->signalsList->count()-1)
-        return;
+    if (currIdx > -1)
+    {
+        DBC_SIGNAL *refSignal = dbcMessage->sigHandler->findSignalByIdx(currIdx);
+        DBC_SIGNAL newSignal = *refSignal;
+        int num = qrand() % 100;
+        newSignal.name = newSignal.name + QString::number(num);
+        dbcMessage->sigHandler->addSignal(newSignal);
+        ui->signalsList->addItem(newSignal.name);
+        ui->signalsList->setCurrentRow(ui->signalsList->count()-1);
+    }
+}
+
+void DBCSignalEditor::deleteCurrentSignal()
+{
+    int currIdx = ui->signalsList->currentRow();
 
     if (currIdx > -1)
     {
         delete(ui->signalsList->item(currIdx));
         dbcMessage->sigHandler->removeSignal(currIdx);
-        currentSignal = NULL;
+        currIdx = ui->signalsList->currentRow();
+        if (currIdx >= 0) {
+            currentSignal = dbcMessage->sigHandler->findSignalByIdx(currIdx);
+        }
+        else
+        {
+            currentSignal = NULL;
+        }
     }
 }
 

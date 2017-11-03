@@ -27,6 +27,7 @@ private slots:
     void onCustomMenuSignals(QPoint);
     void onCustomMenuValues(QPoint);
     void addNewSignal();
+    void duplicateSignal();
     void deleteCurrentSignal();
     void deleteCurrentValue();
 
